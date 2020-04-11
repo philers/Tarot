@@ -14,11 +14,11 @@ threec_spread_dict = {
     'Relationship' : ['You', 'Relationship', 'Partner'],
     'Decision': ['Situation', 'Action', 'Outcome']}
 
-
 class Deck():
 
 	def __init__(self):
 		self.cards = []
+		self.spread_list = []
 
 	def build_deck(self):
 		self.cards = list(card_data_dict.keys())
@@ -27,6 +27,22 @@ class Deck():
 	def shuffle_deck(self):
 		random.shuffle(self.cards)
 		return self.cards
+
+	def build_spreads(self):
+		for spread in threec_spread_dict:
+			spread = Spread(3, spread, threec_spread_dict[spread], self)
+			self.spread_list.append(spread)
+		return self.spread_list
+
+	def what_spreads(self):
+		print self.spread_list
+
+	def layout_spread(self, spread_int):
+		self.shuffle_deck()
+		self.spread_list[spread_int].pull_cards()
+		self.spread_list[spread_int].layout_cards()
+		self.spread_list[spread_int].learn_meaning()
+
 
 class Card():
 
@@ -48,7 +64,7 @@ class Card():
 
 class Spread():
 
-	def __init__(self, number_of_cards, theme=[], pattern=[], deck=[]):
+	def __init__(self, number_of_cards, theme="", pattern=[], deck=[]):
 		self.number_of_cards = number_of_cards
 		self.theme = theme
 		self.pattern = pattern
@@ -60,7 +76,7 @@ class Spread():
 		self.pull_names = []
 
 	def pull_cards(self):
-		self.pull = self.deck[:self.number_of_cards]
+		self.pull = self.deck.cards[:self.number_of_cards]
 		for card in self.pull:
 			self.pull_dic[card] = Card(card.lower())
 			self.pull_dic[card].lookup_info()
@@ -81,17 +97,15 @@ class Spread():
 		for card in self.pull:
  			print(meaning.format(m=self.pull_dic[card].meaning_up))
 
-
-#Test building a deck
-deck2 = Deck()
-deck2.build_deck()
-deck2.shuffle_deck()
+	def __repr__(self):
+		return self.theme
 
 
-three_card_spread_general = Spread(3, 'Theme', ['Card1', 'Card2', 'Card3'], deck2.cards)
-three_card_spread_time = Spread(3, 'Time', ['Past', 'Present', 'Future'], deck2.cards)
+#Test building a deck, shuffling, and initializing spreads
+deck1 = Deck()
+deck1.build_deck()
+deck1.shuffle_deck()
+deck1.build_spreads()
+deck1.what_spreads()
 
-
-three_card_spread_time.pull_cards()
-three_card_spread_time.layout_cards()
-three_card_spread_time.learn_meaning()
+deck1.layout_spread(4)
