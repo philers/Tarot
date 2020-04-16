@@ -36,13 +36,16 @@ class Deck():
 		return self.spread_list
 
 	def what_spreads(self):
-		print self.spread_list
+		print(self.spread_list)
 
-	def layout_spread(self, spread_int):
+	def layout_spread(self, spread_int, user_learn_choice = "Y", user_see_choice = "N"):
 		self.shuffle_deck()
 		self.spread_list[spread_int].pull_cards()
 		self.spread_list[spread_int].layout_cards()
-		self.spread_list[spread_int].learn_meaning()
+		if user_learn_choice == "Y":
+			self.spread_list[spread_int].learn_meaning()
+		if user_see_choice == "Y":
+			self.spread_list[spread_int].see_cards()
 
 #Use the card dictionary to look up meanings or descriptions
 class Card():
@@ -60,10 +63,13 @@ class Card():
 		self.meaning_rev = card_data_dict[self.short_name]['meaning_rev']
 		self.description = card_data_dict[self.short_name]['desc']
 
+	def find_description(self):
+		return self.description
+
 	def __repr__(self):
 		return self.name
 
-#Build spreads – where you lay out your cards with different meanings
+#Build spreads where you lay out your cards with different meanings
 class Spread():
 
 	def __init__(self, number_of_cards, theme="", pattern=[], deck=[]):
@@ -99,12 +105,17 @@ class Spread():
 				print(reading.format(a=self.pattern[i], n=self.pull_names[i], position="reversed"))
 
 	def learn_meaning(self):
-		meaning = " \n This card {position} represents {m}"
+		meaning = "\n {n} {position} represents {m}"
 		for card in self.pull:
 			if self.pull_dic[card].reversed == False:
- 				print(meaning.format(position="upright", m=self.pull_dic[card].meaning_up))
+ 				print(meaning.format(n=self.pull_dic[card].name, position="upright", m=self.pull_dic[card].meaning_up))
 			else:
-			 	print(meaning.format(position="reversed", m=self.pull_dic[card].meaning_rev))
+			 	print(meaning.format(n=self.pull_dic[card].name, position="reversed", m=self.pull_dic[card].meaning_rev))
+
+	def see_cards(self):
+		description_message = "\n On this card, you will see {desc}"
+		for card in self.pull:
+			print(description_message.format(desc=self.pull_dic[card].description))
 
 	def __repr__(self):
 		return self.theme
@@ -116,7 +127,9 @@ def main():
 	deck1.build_spreads()
 	deck1.what_spreads()
 	user_spread_choice = int(input(" \n Pick a theme from the list to learn from the cards... \n \n Choose a number:"))
-	deck1.layout_spread((user_spread_choice - 1))
+	user_learn_choice = str(input("Would you like to learn the meaning of your cards? Y/N:"))
+	user_see_choice = str(input("Would you like to 'see' your cards with a description? Warning: these can be quite long Y/N:"))
+	deck1.layout_spread((user_spread_choice - 1), user_learn_choice, user_see_choice)
 	return deck1
 
 if __name__ == "__main__":
