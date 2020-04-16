@@ -14,11 +14,11 @@ threec_spread_dict = {
     'Relationship' : ['You', 'Relationship', 'Partner'],
     'Decision': ['Situation', 'Action', 'Outcome']}
 
-
 class Deck():
 
 	def __init__(self):
 		self.cards = []
+		self.spread_list = []
 
 	def build_deck(self):
 		self.cards = list(card_data_dict.keys())
@@ -28,11 +28,28 @@ class Deck():
 		random.shuffle(self.cards)
 		return self.cards
 
+	def build_spreads(self):
+		for spread in threec_spread_dict:
+			spread = Spread(3, spread, threec_spread_dict[spread], self)
+			self.spread_list.append(spread)
+		return self.spread_list
+
+	def what_spreads(self):
+		print self.spread_list
+
+	def layout_spread(self, spread_int):
+		self.shuffle_deck()
+		self.spread_list[spread_int].pull_cards()
+		self.spread_list[spread_int].layout_cards()
+		self.spread_list[spread_int].learn_meaning()
+
+
 class Card():
 
-	def __init__(self, short_name="",  value_int=0):
+	def __init__(self, short_name="",  value_int=0, reverse=False):
 		self.short_name = short_name
 		self.value_int = value_int
+		self.reversed = reverse
 		self.name = ""
 
 	def lookup_info(self):
@@ -45,53 +62,59 @@ class Card():
 	def __repr__(self):
 		return self.name
 
-
 class Spread():
 
-	def __init__(self, number_of_cards, theme=[], pattern=[], deck=[]):
+	def __init__(self, number_of_cards, theme="", pattern=[], deck=[]):
 		self.number_of_cards = number_of_cards
 		self.theme = theme
 		self.pattern = pattern
-		self.fullspread = {}
-		self.fullspread[self.theme] = self.pattern
 		self.deck = deck
 		self.pull = []
 		self.pull_dic = {}
 		self.pull_names = []
 
 	def pull_cards(self):
-		self.pull = self.deck[:self.number_of_cards]
+		self.pull = self.deck.cards[:self.number_of_cards]
 		for card in self.pull:
 			self.pull_dic[card] = Card(card.lower())
 			self.pull_dic[card].lookup_info()
 		for card in self.pull:
 			self.pull_names.append(self.pull_dic[card].name)
+		for value in self.pull_dic.values():
+			reverse_int = random.randint(0,1)
+			if reverse_int == 0:
+				value.reversed = False
+			else:
+				value.reversed = True
 		return self.pull_dic
 
-
 	def layout_cards(self):
-		self.layout = dict(zip(self.pattern, self.pull))
-		reading = "Your {a} is {n}."
-		for i in range(0, 3):
-			print(reading.format(a=self.pattern[i], n=self.pull_names[i]))
-		return self.layout
+		reading = "Your {a} is {n}, {position}"
+		for card, i in zip(self.pull, range(0, 3)):
+			if self.pull_dic[card].reversed == False:
+				print(reading.format(a=self.pattern[i], n=self.pull_names[i], position="upright"))
+			else:
+				print(reading.format(a=self.pattern[i], n=self.pull_names[i], position="reversed"))
 
 	def learn_meaning(self):
-		meaning = "This card represents {m}"
+		meaning = "This card {position} represents {m}"
 		for card in self.pull:
- 			print(meaning.format(m=self.pull_dic[card].meaning_up))
+			if self.pull_dic[card].reversed == False:
+ 				print(meaning.format(position="upright", m=self.pull_dic[card].meaning_up))
+			else:
+			 	print(meaning.format(position="reversed", m=self.pull_dic[card].meaning_rev))
+
+	def __repr__(self):
+		return self.theme
 
 
-#Test building a deck
-deck2 = Deck()
-deck2.build_deck()
-deck2.shuffle_deck()
+#Test building a deck, shuffling, and initializing spreads
+deck1 = Deck()
+deck1.build_deck()
+deck1.shuffle_deck()
+deck1.build_spreads()
+deck1.what_spreads()
 
+deck1.layout_spread(4)
 
-three_card_spread_general = Spread(3, 'Theme', ['Card1', 'Card2', 'Card3'], deck2.cards)
-three_card_spread_time = Spread(3, 'Time', ['Past', 'Present', 'Future'], deck2.cards)
-
-
-three_card_spread_time.pull_cards()
-three_card_spread_time.layout_cards()
-three_card_spread_time.learn_meaning()
+print(deck1.spread_list[4].pull_dic[deck1.spread_list[4].pull[0]].reversed)
