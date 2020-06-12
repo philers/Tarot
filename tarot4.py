@@ -7,13 +7,6 @@ card_data_dict = {}
 for i in range(0, 78):
 	card_data_dict[card_data_fulldict['cards'][i]['name_short']] = card_data_fulldict['cards'][i]
 
-threec_spread_dict = {
-	'Generic Three Card': ['Card1', 'Card2', 'Card3'],
-    'Time': ['Past', 'Present', 'Future'],
-    'Path' : ['You', 'Path', 'Potential'],
-    'Relationship' : ['You', 'Relationship', 'Partner'],
-    'Decision': ['Situation', 'Action', 'Outcome']}
-
 #Define the class, Deck, which is holds all of the cards.
 class Deck():
 
@@ -23,13 +16,16 @@ class Deck():
 
 	def build_deck(self):
 		self.cards = list(card_data_dict.keys())
-		return self.cards
-
-	def shuffle_deck(self):
 		random.shuffle(self.cards)
 		return self.cards
 
 	def build_spreads(self):
+		threec_spread_dict = {
+			'Generic Three Card': ['Card1', 'Card2', 'Card3'],
+    		'Time': ['Past', 'Present', 'Future'],
+    		'Path' : ['You', 'Path', 'Potential'],
+    		'Relationship' : ['You', 'Relationship', 'Partner'],
+    		'Decision': ['Situation', 'Action', 'Outcome']}
 		for spread in threec_spread_dict:
 			spread = Spread(3, spread, threec_spread_dict[spread], self)
 			self.spread_list.append(spread)
@@ -39,7 +35,6 @@ class Deck():
 		print(self.spread_list)
 
 	def layout_spread(self, spread_int, user_learn_choice = "Y", user_see_choice = "N"):
-		self.shuffle_deck()
 		self.spread_list[spread_int].pull_cards()
 		self.spread_list[spread_int].layout_cards()
 		if user_learn_choice == "Y":
@@ -123,7 +118,6 @@ class Spread():
 def main():
 	deck1 = Deck()
 	deck1.build_deck()
-	deck1.shuffle_deck()
 	deck1.build_spreads()
 	deck1.what_spreads()
 	user_spread_choice = int(input(" \n Pick a theme from the list to learn from the cards... \n \n Choose a number:"))
